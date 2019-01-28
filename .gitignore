@@ -1,0 +1,7 @@
+*~
+*.so
+*.precomp
+.prove
+
+Makefile
+resources
