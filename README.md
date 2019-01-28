@@ -23,6 +23,7 @@ $main.plus_int(2, 1);
 
 You can do more:
 ```
+$main.run(q:to/end/);
 class Foo:
     def __init__(self, val):
         self.val = val
@@ -35,6 +36,7 @@ class Foo:
 		
 def test_foo(foo):
     return foo.test();
+end
 ```		
 
 Test it:
