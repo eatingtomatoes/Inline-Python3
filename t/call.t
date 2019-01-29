@@ -2,7 +2,7 @@
 
 use v6.c;
 use lib <lib>;
-use Inline::PythonObjects;
+use Inline::Python3;
 
 say "1..11";
 

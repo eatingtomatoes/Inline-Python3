@@ -1,12 +1,19 @@
-unit module PythonObjects;
+unit module Python3;
 
 use NativeCall;
 
-use Inline::PythonObjects::PyInterface;
-use Inline::PythonObjects::Utilities;
-use Inline::PythonObjects::PythonException;
-use Inline::PythonObjects::ObjectPool;
+use Inline::Python3::PyInterface;
+use Inline::Python3::Utilities;
+use Inline::Python3::ObjectPool;
 
+# simple wrapper for python exception
+class PythonException is Exception is export {
+    has $.object;
+
+    method message {
+	$.object
+    }
+}
 
 # Every python object proxy class must have their type registered in the 'type-center'.
 # When a pyhton object comes from the python world, the static method from-py will go through

@@ -1,4 +1,4 @@
-use Inline::PythonObjects::PyInterface;
+use Inline::Python3::PyInterface;
 
 # some utilities to help manage the ref-count.
 module Utilities {

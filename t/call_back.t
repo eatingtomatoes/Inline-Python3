@@ -2,7 +2,7 @@
 
 use v6;
 use lib <lib>;
-use Inline::PythonObjects;
+use Inline::Python3;
 use Test;
 
 plan 32;

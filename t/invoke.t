@@ -2,7 +2,7 @@
 
 use v6;
 use lib <lib>;
-use Inline::PythonObjects;
+use Inline::Python3;
 use Test;
 
 my $main = PyModule('__main__');
