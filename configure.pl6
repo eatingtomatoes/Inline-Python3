@@ -1,30 +1,10 @@
-#!/usr/bin/env perl6
-use v6;
-use LibraryMake;
+#! /usr/bin/env perl6
 
-my %vars = get-vars('.');
+use v6.c;
 
-my $default-pyconfig = '/usr/bin/python3-config';
+use lib <.>;
 
-my $msg = "please input the path to python3-config
-(default: $default-pyconfig):\n";
+use Build;
 
-my $pyconfig = do given (prompt $msg) {
-    $_.Bool ?? $_ !! $default-pyconfig	
-}
+Build.build('.');
 
-if $pyconfig.&run('--help', :out, :err).exitcode != 0 {
-    die "error: failed to find the executable '$pyconfig'"
-}
-
-%vars<source> = 'source';
-%vars<pyhelper> = $*VM.platform-library-name('resources/libraries/pyhelper'.IO);
-%vars<perl6> = $*VM.platform-library-name('resources/libraries/perl6'.IO);
-%vars<cflags> = chomp qqx/$pyconfig --cflags/;
-%vars<ldflags> = chomp qqx/$pyconfig --ldflags/;
-
-mkdir 'resources' unless 'resources'.IO.e;
-mkdir 'resources/libraries' unless 'resources/libraries'.IO.e;
-
-process-makefile('.', %vars);
-shell(%vars<MAKE>);

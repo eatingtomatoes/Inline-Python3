@@ -6,54 +6,17 @@
     "description": "Use Python3 code and libraries in a Perl 6 program",
     "license": "Artistic-2.0",
     "provides": {
-        "Inline::Python3": "lib/Inline/Python3.pm6"
+        "Inline::Python3": "lib/Inline/Python3.pm6",
+	"Inline::Python3::PyInterface": "lib/Inline/Python3/PyInterface.pm6",
+	"Inline::Python3::Utilities": "lib/Inline/Python3/Utilities.pm6",
+	"Inline::Python3::ObjectPool": "lib/Inline/Python3/ObjectPool.pm6"
     },
-    "depends": {
-        "build": {
-            "requires": [
-                "Distribution::Builder::MakeFromJSON",
-                "python3-config:from<bin>"
-            ]
-        },
-        "runtime": {
-            "requires": [
-                "python3.6m:from<native>"
-            ]
-        }
-    },
+    "depends": [
+        "LibraryMake"
+    ],
     "resources": [
         "libraries/pyhelper",
         "libraries/perl6"
     ],
-    "source-url": "https://github.com/eatingtomatoes/Inline-Python3",
-    "builder": "MakeFromJSON",
-    "build": {
-        "makefile-variables": {
-            "pyhelper": {
-                "resource": [
-                    "libraries/pyhelper"
-                ]
-            },
-            "perl6": {
-                "resource": [
-                    "libraries/perl6"
-                ]
-            },
-            "cflags": {
-                "run": [
-                    "python3-config --cflags"
-                ]
-            },
-            "ldflags": {
-                "run": [
-                    "python3-config --ldflags"
-                ]
-            }
-        }
-    },
-    "tags": [
-        "perl6",
-        "inline",
-        "python"
-    ]
+    "source-url": "https://github.com/eatingtomatoes/Inline-Python3"
 }
