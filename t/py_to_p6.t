@@ -1,7 +1,6 @@
 #!/usr/bin/env perl6
 
-use v6;
-use lib <lib>;
+use v6.c;
 use Inline::Python3;
 use Test;
 
@@ -22,14 +21,4 @@ is $main.run('
 u"Püthon"
 ', :eval), 'Püthon';
 
-# not work
-# Malformed UTF-8 at line 1 col 2
-
-# is $main.run('
-# # coding=utf-8
-# "Püthon".encode("latin-1")
-# ', :eval).decode('latin-1'), 'Püthon';
-
 done-testing;
-
-# vim: ft=perl6

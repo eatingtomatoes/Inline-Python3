@@ -1,29 +1,26 @@
 #!/usr/bin/env perl6
 
 use v6;
-use lib <lib>;
 use Inline::Python3;
 use Test;
 
-plan 32;
-
 my $main = PyModule('__main__');
 
-$main.run(q/
+$main.run(q:to/PYTHON/);
 from logging import warn
 def test(obj):
     try:
         obj.ok(1)
     except Exception as e:
         warn(e)
-    for i in range(10):
+    for i in range(5):
         retval = obj.test('Perl6')
         obj.ok(retval == 'Perl6')
         retval = obj.test('Perl6')
         obj.ok(retval == 'Perl6')
         retval = obj.test('Perl', 6)
         obj.ok(retval == ['Perl', 6])
-/);
+PYTHON
 
 class Foo {
     method ok($value) {
@@ -35,9 +32,9 @@ class Foo {
 }
 
 my $foo = Foo.new;
+
 $foo.ok(1);
 
 $main.test($foo);
 
-# vim: ft=perl6
-
+done-testing;

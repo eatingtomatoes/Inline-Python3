@@ -1,47 +1,35 @@
 #!/usr/bin/env perl6
 
 use v6.c;
-use lib <lib>;
+use Test;
 use Inline::Python3;
-
-say "1..11";
 
 my $main = PyModule('__main__');
 
-$main.run('
-
-def test():
-    print("ok 1 - executing a parameterless function without return value");
-    return;
+$main.run(q:to/PYTHON/);
+def test_no_param_nor_retval():
+    pass
 
 def test_int_params(a, b):
-    if a == 2 and b == 1:
-        print("ok 2 - int params");
-    else:
-        print("not ok 2 - int params");
-    return;
+    return a == 2 and b == 1
 
-def test_str_params(a, b, i):
-    if a == "Hello" and b == "Python":
-        print("ok %i - str params" % i);
-    else:
-        print("not ok %i - str params" % i);
-    return;
+def test_str_params(a, b):
+    return a == "Hello" and b == "Python"
 
 def test_int_retval():
-    return 1;
+    return 1
 
 def test_int_retvals():
-    return 3, 1, 2;
+    return 3, 1, 2
 
 def test_str_retval():
-    return u"Hello Perl 6!";
+    return "Hello Perl 6!"
 
 def test_mixed_retvals():
-    return (u"Hello", u"Perl", 6);
+    return ("Hello", "Perl", 6);
 
 def test_none(undef):
-    return undef is None;
+    return undef is None
 
 import types
 def test_hash(h):
@@ -71,90 +59,42 @@ class Foo:
 # caution !!! the name "sum" conflicts with the sum of perl6
     def sum_(self, a, b):
         return a + b
-');
+PYTHON
 
-$main.test;
-$main.test_int_params(2, 1);
-$main.test_str_params('Hello', 'Python', 3);
+lives-ok {
+    $main.test_no_param_nor_retval;
+}, "no param nor retval";
 
-$main.run('
-import sys
-sys.stdout.flush()
-');
+ok $main.test_int_params(a => 2, b => 1), "int params";
 
-say $main.test_int_retval;
-if ($main.test_int_retval == 1) {
-    say "ok 4 - return one int";
-}
-else {
-    say "not ok 4 - return one int";
-}
-my $retvals = $main.test_int_retvals;
-if ($retvals.elems == 3 and $retvals[0] == 3 and $retvals[1] == 1 and $retvals[2] == 2) {
-    say "ok 5 - return three ints";
-}
-else {
-    say "not ok 5 - return three ints";
-    say "    got: {$retvals}";
-    say "    expected: 3, 1, 2";
-}
-if $main.test_str_retval eq 'Hello Perl 6!' {
-    say "ok 6 - return one string";
-}
-else {
-    say "not ok 6 - return one string";
-}
-$retvals = $main.test_mixed_retvals;
+ok $main.test_str_params(:a<Hello>, :b<Python>), "str params";
 
-if ($retvals == 3 and $retvals[0] eq 'Hello' and $retvals[1] eq 'Perl' and $retvals[2] == 6) {
-    say "ok 7 - return mixed values";
-}
-else {
-    say "not ok 7 - return mixed values";
-    say "    got: {$retvals}";
-    say "    expected: 'Hello', 'Perl', 6";
-}
+is $main.test_int_retval, 1, "return one int";
 
-say $main.Foo(1).test;
-if ($main.Foo(1).test() == 1) {
-    say "ok 8 - Python method call";
-}
-else {
-    say "not ok 8 - Python method call";
-}
+subtest {
+    my $retvals = $main.test_int_retvals;
+    is $retvals.elems, 3;
+    is $retvals[0], 3;
+    is $retvals[1], 1;
+    is $retvals[2], 2;
+}, "return three ints";
 
-if ($main.Foo(1).sum_(3, 1) == 4) {
-    say "ok 9 - Python method call with parameters";
-}
-else {
-    say "not ok 9 - Python method call with parameters";
-}
+is $main.test_str_retval, 'Hello Perl 6!',"return one string";
 
-if ($main.test_none(Any) == 1) {
-    say "ok 10 - Any converted to undef";
-}
-else {
-    say "not ok 10 - Any converted to undef";
-}
+subtest {
+    my $retvals = $main.test_mixed_retvals;
+    is $retvals.elems, 3;
+    is $retvals[0], 'Hello';
+    is $retvals[1], 'Perl';
+    is $retvals[2], 6;
+}, "return mixed values";
 
+is $main.Foo(1).test(), 1, "Python method call";
 
-# error in python code:
-#    module 'types' has no attribute 'DictType'
-#
-# if ($main.test_hash(${a => 2, b => {c => [4, 3]}}) == 1) {
-#     say "ok 11 - Passing hashes to Python";
-# }
-# else {
-#     say "not ok 11 - Passing hashes to Python";
-#}
+is $main.Foo(1).sum_(3, 1), 4, "Python method call with parameters";
 
-if ($main.test_foo($main.Foo(6)) == 6) {
-    say "ok 11 - Passing Python objects back from Perl 6";
-}
-else {
-    say "not ok 11 - Passing Python objects back from Perl 6";
-}
+is $main.test_none(Any), 1, "Any converted to undef";
 
-$main.test_str_params(:i(12), :a<Hello>, :b<Python>);
+is $main.test_foo($main.Foo(6)), 6, "Passing Python objects back from Perl 6";
 
-# vim: ft=perl6
+done-testing;

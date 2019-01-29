@@ -1,7 +1,6 @@
 #!/usr/bin/env perl6
 
-use v6;
-use lib <lib>;
+use v6.c;
 use Inline::Python3;
 use Test;
 
@@ -19,11 +18,9 @@ class Foo(object):
         return self.a + c + self.b
 PYTHON
 
-is($main.Foo.test(1), 1);
-is($main.Foo.test(x => 1), 1);
+is $main.Foo.test(1), 1;
+is $main.Foo.test(x => 1), 1;
 my $foo = $main.Foo(a => 'aa', b => 'bb');
-is($foo.concat(c => '~'), 'aa~bb');
+is $foo.concat(c => '~'), 'aa~bb';
 
 done-testing;
-
-# vim: ft=perl6
