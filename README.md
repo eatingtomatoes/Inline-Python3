@@ -97,13 +97,21 @@ See more usage in t/*.t files.
 
 You will need a Python built with the -fPIC option (position independent code). Most distributions build their Python that way. 
 
+You can choose which python to be used by settinng the environment variable PYTHON_CONFIG to the path to python3.*-config.  If you don't specify one, the builder will use the first result of shell command 'locate python3-config'.
+
 
 With a python in your path, then build:
 
 ```
     perl6 configure.pl6
     make test
-    make install
+    make install(unimplemeted)
+```
+
+Or you can use the zef:
+
+```
+zef install .
 ```
 
 
