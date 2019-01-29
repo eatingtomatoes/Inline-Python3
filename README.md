@@ -37,6 +37,12 @@ $main.plus_int(2, 1);
 
 Note that you cannot directly call a function/method whose name conflicts with that of any method of the perl6 class "Any". For example, if you define a function/method with the name "sum", then you cannot do this: $main.sum(x, y). The perl6 compiler will treat it as a method call of the class "Any".
 
+ There exists  a way to bypass the obstacle:
+
+```
+say $main.run('sum', :eval)(1, 2);
+```
+
 Here follows a bit more complex example:
 
 ```
@@ -103,9 +109,9 @@ You can choose which python to be used by settinng the environment variable PYTH
 With a python in your path, then build:
 
 ```
-    perl6 configure.pl6
-    make test
-    make install(unimplemeted)
+perl6 configure.pl6
+make test
+make install(unimplemeted)
 ```
 
 Or you can use the zef:
