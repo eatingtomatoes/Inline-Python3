@@ -6,7 +6,7 @@
     "description": "Use Python3 code and libraries in a Perl 6 program",
     "license": "Artistic-2.0",
     "provides": {
-        "Inline::Python": "lib/Inline/Python3.pm6"
+        "Inline::Python3": "lib/Inline/Python3.pm6"
     },
     "depends": {
         "build": {
