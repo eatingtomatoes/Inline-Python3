@@ -1,69 +1,59 @@
 {
     "meta-version": 1,
-    "name"        : "Inline::Python",
-    "license"     : "Artistic-2.0",
-    "version"     : "0.3",
-    "perl"        : "6.c",
-    "auth"        : "cpan:NINE",
-    "description" : "Use Python code and libraries in a Perl 6 program",
-    "depends" : {
+    "perl": "6.c",
+    "name": "Inline::Python3",
+    "version": "0.1",
+    "description": "Use Python3 code and libraries in a Perl 6 program",
+    "license": "Artistic-2.0",
+    "provides": {
+        "Inline::Python": "lib/Inline/Python3.pm6"
+    },
+    "depends": {
         "build": {
             "requires": [
                 "Distribution::Builder::MakeFromJSON",
-                {
-                    "from" : "bin",
-                    "name" : {
-                        "by-distro.name" : {
-                            "macosx" : "python2.7-config",
-                            "debian" : "python2.7-config",
-                            "" : "python2-config"
-                        }
-                    }
-                }
+                "python3-config:from<bin>"
             ]
         },
         "runtime": {
             "requires": [
-                "python2.7:from<native>"
+                "python3.6m:from<native>"
             ]
         }
     },
-    "provides"    : {
-        "Inline::Python" : [
-	    "lib/Inline/Python.pm6",
-	    "lib/Inline/NewPython.pm6"
-	]
-    },
-    "resources"   : [ "libraries/pyhelper" ],
-    "source-url"  : "git://github.com/niner/Inline-Python.git",
+    "resources": [
+        "libraries/pyhelper",
+        "libraries/perl6"
+    ],
+    "source-url": "https://github.com/eatingtomatoes/Inline-Python3",
     "builder": "MakeFromJSON",
     "build": {
         "makefile-variables": {
-            "pyhelper": {"resource": "libraries/pyhelper"},
+            "pyhelper": {
+                "resource": [
+                    "libraries/pyhelper"
+                ]
+            },
+            "perl6": {
+                "resource": [
+                    "libraries/perl6"
+                ]
+            },
             "cflags": {
                 "run": [
-                    {
-                        "by-distro.name" : {
-                            "macosx" : "python2.7-config",
-                            "debian" : "python2.7-config",
-                            "" : "python2-config"
-                        }
-                    },
-                    "--cflags"
+                    "python3-config --cflags"
                 ]
             },
             "ldflags": {
                 "run": [
-                    {
-                        "by-distro.name" : {
-                            "macosx" : "python2.7-config",
-                            "debian" : "python2.7-config",
-                            "" : "python2-config"
-                        }
-                    },
-                    "--ldflags"
+                    "python3-config --ldflags"
                 ]
             }
         }
-    }
+    },
+    "tags": [
+        "perl6",
+        "inline",
+        "python"
+    ]
 }
