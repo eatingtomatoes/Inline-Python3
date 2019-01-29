@@ -503,8 +503,14 @@ class Perl6Instance is PyInstance is export {
     constant perl6-object-mark = "__perl6_object_index__";
 
     INIT {
-	# py_init_perl6;
-
+	my $resource-id = %?RESOURCES<libraries/perl6>;
+	my $libpath = $*VM.platform-library-name($resource-id.Str.IO).Str;
+	my $tmp-path = "/tmp/libperl6.so";	
+	my $link-cmd = "ln -s $libpath $tmp-path";
+	if (not $tmp-path.IO.e) && (shell($link-cmd).exitcode != 0) {
+	    die "error: failed to create a soft link to libperl6.so";
+	}
+	
 	Perl6Instance.register($?CLASS);
 
 	CallbackCenter.register(&call_instance);
@@ -512,7 +518,7 @@ class Perl6Instance is PyInstance is export {
 	
 	PyModule('__main__').run(qq:to/PYTHON/);
 	import sys
-	sys.path.append('{%?RESOURCES<libraries>.Str}')
+	sys.path.append("/tmp")
 	import libperl6
 	class {perl6-object-class}(object):
 	    def __init__(self, index):
