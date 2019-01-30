@@ -86,10 +86,8 @@ say $main.dump_foo($main.Foo(6))
 So far,  all functions and class are defined in the \__main__ module. But you can  use other modules too.
 
 ```
-my $string = PyModule('string', :import);
+my $string = PyModule('string');
 ```
-
-The keyword ":import" is necessary for all modules except the \__main__.
 
 Then you can use the string module happily:
 
