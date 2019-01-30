@@ -6,7 +6,7 @@ use Test;
 
 my $main = PyModule('__main__');
 
-$main.run(q:to/PYTHON/);
+$main.run(q:to/PYTHON/, :import);
 from logging import warn
 def test(obj):
     try:

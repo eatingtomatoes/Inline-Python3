@@ -39,8 +39,7 @@ use Inline::Python3::ObjectPool;
 
 # Simple wrapper for python exception
 class PythonException is Exception is export {
-    has $.object;
-    method message { $.object }
+    has $.message;
 }
 
 # Interface for all the python object proxy.
@@ -124,7 +123,7 @@ class ObjectConverter {
 
     # The static method to convert a PyObject into a perl6 string.
     # It exists for debugging.
-    method stringify(PyRef $object) {
+    method stringify(PyRef:D $object) {
 	py_object_str($object) free-after {
 	    self.decode($^py-str);
 	}
@@ -133,16 +132,16 @@ class ObjectConverter {
     # The static method to detect the exception raised in c code.
     # If there does exist one, the method will convert it into PythonException
     # and rethrow it.
-    method detect-exception is hidden-from-backtrace {
+    method detect-exception {
 	my @exception := CArray[Pointer].allocate(4);
 	py_fetch_error(@exception);
-	my $ex_type    = @exception[0];
-	my $ex_message = @exception[3];
+	my $ex-type = @exception[0];
 
-	if $ex_type {
-	    my $message = self.decode($ex_message);
+	if $ex-type {
+	    my $ex-name = self.stringify($ex-type);
+	    my $ex-message = self.stringify(@exception[3]); 
             @exception[$_] and py_dec_ref(@exception[$_]) for ^4;
-	    PythonException.new(object => $message).throw
+	    PythonException.new(message => "$ex-name $ex-message").throw
 	}	
     }    
 }
@@ -394,7 +393,7 @@ class PyTuple is PySequence is export {
 class PyInstance is PyObject is export {
     INIT { ObjectConverter.register($?CLASS) }
 
-    has PyRef $.ref;
+    has $.ref;
 
     multi method accept-py(PyRef:D $object) {
 	py_instance_check($object)
@@ -443,7 +442,7 @@ class PyInstance is PyObject is export {
     }
 
     submethod DESTROY {
-	py_dec_ref(self.ref)
+	$!ref and py_dec_ref($!ref)
     }
 }
 
@@ -453,7 +452,7 @@ class PyInstance is PyObject is export {
 #     my $main PyModule('__main__');
 #        $main.print(1,3,4,5)
 #
-#    PyModule('string', :import).digits
+#    PyModule('string').digits
 #
 class PyModule is PyInstance is export {
     INIT { ObjectConverter.register($?CLASS) }
@@ -466,18 +465,10 @@ class PyModule is PyInstance is export {
 	PyModule.new(ref => $object)
     }
 
-    # To access a module namespace.
-    # It will not import the module if you don't specify the keyword :import. 
-    # Note that the '__main__' module doesn't need the keyword.
-    method CALL-ME(Str $name, :$import) {
-	# my $module = py_import_addmodule($name);
-	my $module = do {
-	    with $import {
-		py_import($name) // die "failed to import the module: $name"
-	    } else {
-		py_import_addmodule($name);		
-	    }
-	}
+    # To import a module.
+    method CALL-ME(Str $name) {
+	my $module = py_import($name);
+	ObjectConverter.detect-exception;
 	PyModule.new(ref => $module)
     }
 
@@ -546,21 +537,24 @@ class Perl6Instance is PyInstance is export {
 	ObjectConverter.register($?CLASS);
 	CallbackCenter.register(&call_instance);
 	CallbackCenter.register(&call_method);
-
+	CallbackCenter.register(&delete_instance);
+	
 	my ($dir, $name) = get-perl6-module-path;
 	
 	PyModule('__main__').run(qq:to/PYTHON/);
 	import sys
 	sys.path.append("$dir")
 	import { $name }
-	class {perl6-object-class}(object):
+	class {perl6-object-class}:
 	    def __init__(self, index):
                 self.{perl6-object-mark} = index
             def __getattr__(self, name):
                 return libperl6.call_perl6('{callback_id(&call_method)}', [self.{perl6-object-mark}, name])
             def __call__(self, *args):
                 return libperl6.call_perl6('{callback_id(&call_instance)}', [self.{perl6-object-mark}, *args])
-	PYTHON
+            def __del__(self):
+                libperl6.call_perl6('{callback_id(&delete_instance)}', [self.{perl6-object-mark}])					 
+        PYTHON
     }    
 
     # to respond to the call of perl6 instance in python world
@@ -581,6 +575,15 @@ class Perl6Instance is PyInstance is export {
 	} else {
 	    ObjectConverter.encode($object."$method"());
 	}
+    }
+
+    # free the space occupied by the index of perl6 instance
+    # note that all callbacks must not return a NULL, or the python interpreter
+    # will get mad.
+    sub delete_instance(PyRef:D $py-args) {
+	my $args = ObjectConverter.decode($py-args);
+	Perl6Instance.pool.free($args[0]);
+	py_none
     }
 
     sub get-perl6-module-path {
@@ -622,11 +625,10 @@ class Perl6Instance is PyInstance is export {
     # Maybe we can add a mark in this object.
     # At present I allocate many the pool cells but free none.
     multi method to-py(Any:D $object) {
-	my $index = $.pool.keep($object);
-
 	my $module = py_import_addmodule('__main__');
 	my $globals = py_module_getdict($module);
 	my $locals = $globals;
+	my $index = $.pool.keep($object);	
 	
 	py_run_string(
 	    "{ perl6-object-class }({$index})",
