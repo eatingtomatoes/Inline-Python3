@@ -503,14 +503,16 @@ class Perl6Instance is PyInstance is export {
     constant perl6-object-mark = "__perl6_object_index__";
 
     INIT {
-	my $resource-id = %?RESOURCES<libraries/perl6>;
-	my $libpath = $*VM.platform-library-name($resource-id.Str.IO).Str;
-	my $tmp-path = "/tmp/libperl6.so";	
-	my $link-cmd = "ln -s $libpath $tmp-path";
-	if (not $tmp-path.IO.e) && (shell($link-cmd).exitcode != 0) {
-	    die "error: failed to create a soft link to libperl6.so";
+	my $resource-id = %?RESOURCES<libraries/perl6>.Str;
+	my $lib-path = do given $resource-id.IO {
+	    $_.e ?? $_ !! $*VM.platform-library-name($_).IO;
 	}
+	$lib-path.e or die "library not exist: ~$lib-path";
 	
+	my $tmp-path = $*VM.platform-library-name($*TMPDIR.add('perl6')).IO;
+	$tmp-path.unlink;
+	$lib-path.link($tmp-path);
+
 	Perl6Instance.register($?CLASS);
 
 	CallbackCenter.register(&call_instance);
@@ -518,8 +520,8 @@ class Perl6Instance is PyInstance is export {
 	
 	PyModule('__main__').run(qq:to/PYTHON/);
 	import sys
-	sys.path.append("/tmp")
-	import libperl6
+	sys.path.append("$*TMPDIR")
+	import { $tmp-path.basename.IO.extension('', parts => 1..*) }
 	class {perl6-object-class}(object):
 	    def __init__(self, index):
                 self.{perl6-object-mark} = index
