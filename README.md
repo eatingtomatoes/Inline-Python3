@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/eatingtomatoes/Inline-Python3.svg?branch=master)](https://travis-ci.com/eatingtomatoes/Inline-Python3)
-
 # Description
 
 Module for executing Python3 code and accessing Python libraries from Perl 6.
