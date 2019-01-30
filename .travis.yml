@@ -1,6 +1,14 @@
 language: perl6
+
 perl6:
   - latest
-install:
+
+sudo: required
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y python3.6 libpython3.6-dev
   - rakudobrew build-zef
-  - zef --debug install .	
+  
+install:
+  - PYTHON_CONFIG=/usr/bin/python3-config zef --debug install .	
