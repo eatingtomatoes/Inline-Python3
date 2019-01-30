@@ -6,7 +6,38 @@ use Inline::Python3::PyInterface;
 use Inline::Python3::Utilities;
 use Inline::Python3::ObjectPool;
 
-# simple wrapper for python exception
+# Essential Guide:
+#
+# 1. Architecture
+# Every object from the python api was represented in a pointer to PyObject.
+# Then there rises an essential problem: how to decode the pointers into perl6 objects and
+# encode the latter into the former as well as keep the code clean.
+#
+# I can use various Py*_Check functions provided by python api to test if a PyObject belongs
+# to certeain python class. But the question is that an PyObject can belong to several python class.
+# For example, a python string object belongs to the 'str' class; at the same time it's also a sequence.
+# Thus, the order of using these Py*_Checks matters!  
+#
+# After several unsuccessful experiments, I came up with the Blackboard architecture(Please correct me if I'm wrong):
+# First, set a global data structure to store all python object proxy classes. When an PyObject
+# pointer needs decoding, go through the data structure and ask each proxy class if it
+# can decode the pointer. Then choose the first one who says yes to do the job. The order of
+# asking depends on those classes' level. The higher of a class's level, the earlier it will be
+# asked. In order to set a proper level value for each Py*_Check, I built a proxy class hierarchy.
+# The deeper of a class's position, the higher of its level. Every proxy has either an "accept-py" method 
+# or an "accept-perl6" method, or even both. The former is used to test if it can decode the coming
+# PyObject, while the latter for encoding a perl6 object. If a class accepts the coming object, its "from-py" method
+# or the "to-py" method wil do the actual job.
+#
+# 2. User Interface
+# In order to make the library easy to use, some proxy class implement the FALLBACK method
+# such that users can access python's functions or values as if ther are accessing those of a perl6 module or object..
+#
+# 3. Principle
+# (1) Keep the code extensible.
+# (2) Strive to avoid cyclic dependency.
+
+# Simple wrapper for python exception
 class PythonException is Exception is export {
     has $.object;
 
@@ -372,7 +403,7 @@ class PyInstance is PyObject is export {
 	$object.ref
     }
 
-    # circular dependency ?
+    # cyclic dependency ?
     # to passs the method call to the python object
     method FALLBACK($name, |args) {
 	with py_object_get_attr_string($.ref, $name) {
@@ -381,7 +412,7 @@ class PyInstance is PyObject is export {
 		# if the $_ is a class object, e.g. Foo, I cannot figure out if 
 		# it's instantiating a python class(e.g. Foo()) or accessing a
 		# static attribute/method, e.g. Foo.some_static_method.
-		# So I decide to delay the decision to PyClass proxy. (then circular dependency???)
+		# So I decide to delay the decision to PyClass proxy. (then cyclic dependency???)
 		my $object = PyObject.from-py($_);
 		args.Bool ?? $object(|args) !! $object;
 	    } else {
@@ -503,6 +534,8 @@ class Perl6Instance is PyInstance is export {
     constant perl6-object-mark = "__perl6_object_index__";
 
     INIT {
+	# Since the name of dynamic link library will be hashed after "zef install .",
+	# I have to give the library a static name by creating a soft link.
 	my $resource-id = %?RESOURCES<libraries/perl6>.Str;
 	my $lib-path = do given $resource-id.IO {
 	    $_.e ?? $_ !! $*VM.platform-library-name($_).IO;
