@@ -7,7 +7,7 @@ sudo: required
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y python3.* libpython3.*-dev
+  - sudo apt-get install -y python3.4 libpython3.4-dev
   - rakudobrew build-zef
   
 install:
