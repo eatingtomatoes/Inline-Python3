@@ -118,7 +118,7 @@ Or you can use the zef:
 zef install .
 ```
 
-
+Note that at present this library cannot be built with python interpreter provided by anaconda.
 
 # Reference
 
