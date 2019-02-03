@@ -11,6 +11,9 @@ First, import necessary modules and get a reference to the \__main__ module.
 use Inline::Python3;
 use Inline::Python3::PyModule;
 
+# initialize the environment
+start-python;
+
 my $main = PyModule('__main__');
 ```
 Let's start from some simple code:
