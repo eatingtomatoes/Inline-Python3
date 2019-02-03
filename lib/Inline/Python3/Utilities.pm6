@@ -1,4 +1,4 @@
-use Inline::Python3::PyInterface;
+use Inline::Python3::Config;
 
 # some utilities to help manage the ref-count.
 module Utilities {
@@ -11,4 +11,6 @@ module Utilities {
 	LAST { $object andthen py_dec_ref($_) }
 	user($object);
     }
+
+    sub py_dec_ref(PyRef) is capi { ... }
 }
