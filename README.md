@@ -6,9 +6,11 @@ Note that this library is largely based on the Inline::Python.
 
 # Usage
 
-First, import Inline::Python3 and get a reference to the \__main__ module.
+First, import necessary modules and get a reference to the \__main__ module.
 ```
 use Inline::Python3;
+use Inline::Python3::PyModule;
+
 my $main = PyModule('__main__');
 ```
 Let's start from some simple code:
@@ -37,11 +39,13 @@ $main.plus_int(2, 1);
 
 Note that you cannot directly call a function/method whose name conflicts with that of any method of the perl6 class "Any". For example, if you define a function/method with the name "sum", then you cannot do this: $main.sum(x, y). The perl6 compiler will treat it as a method call of the class "Any".
 
- There exists  a way to bypass the obstacle:
+ There exists  a way to bypass the problem:
 
 ```
-say $main.run('sum', :eval)(1, 2);
+say $main<sum>(1, 2);
 ```
+
+Note that "$main.sum(...)" is invoking a function defined in $main, while "$main\<sum>" is accessing a $main's attribute, which is a callable object. 
 
 Here follows a bit more complex example:
 
@@ -78,7 +82,7 @@ say $main.Foo(1).value;
 
 say $main.Foo(1).some_method(3, 1);
 
-say $main.Foo(1).some_static_method;
+say $main<Foo>.some_static_method;
 
 say $main.dump_foo($main.Foo(6))
 ```
