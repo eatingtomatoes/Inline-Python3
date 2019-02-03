@@ -30,6 +30,7 @@ sub py_unicode_check(PyRef --> int32)
 is export is native($pyhelper)
 { ... }
 
+
 sub py_sequence_check(PyRef --> int32)
 is export is native($pyhelper)
 { ... }
@@ -125,6 +126,7 @@ sub py_dec_ref(PyRef)
 is export is native($pyhelper)
 { ... }
 
+
 sub py_inc_ref(PyRef)
 is export is native($pyhelper)
 { ... }
@@ -153,6 +155,7 @@ sub py_object_call(PyRef, PyRef, PyRef --> PyRef)
 is export is native($pyhelper)
 is symbol('PyObject_Call')
 { ... }
+
 
 sub py_raise_missing_func(Str)
 is export is native($pyhelper)

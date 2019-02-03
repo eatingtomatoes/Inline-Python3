@@ -2,7 +2,10 @@
 
 use v6.c;
 use Inline::Python3;
+use Inline::Python3::PyModule;
 use Test;
+
+start-python;
 
 subtest {
     my $py = PyModule('__main__');

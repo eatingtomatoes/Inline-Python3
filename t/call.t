@@ -3,6 +3,9 @@
 use v6.c;
 use Test;
 use Inline::Python3;
+use Inline::Python3::PyModule;
+
+start-python;
 
 my $main = PyModule('__main__');
 
@@ -66,6 +69,8 @@ lives-ok {
 }, "no param nor retval";
 
 ok $main.test_int_params(a => 2, b => 1), "int params";
+
+ok $main<test_int_params>(a => 2, b => 1), "int params by AT-KEY";
 
 ok $main.test_str_params(:a<Hello>, :b<Python>), "str params";
 

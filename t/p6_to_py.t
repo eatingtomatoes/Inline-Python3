@@ -2,7 +2,10 @@
 
 use v6.c;
 use Inline::Python3;
+use Inline::Python3::PyModule;
 use Test;
+
+start-python;
 
 my $main = PyModule('__main__');
 $main.run(q:to/PYTHON/);
@@ -25,7 +28,7 @@ for ('abcö',
      [1, 2],
      { a => 1, b => 2},
      Any, Foo.new) -> $obj {
-    is-deeply $main.identity($obj), $obj, "Can round-trip " ~ $obj.^name;
+    is $main.identity($obj), $obj, "Can round-trip " ~ $obj.^name;
 }
 
 $main.run(q:to/PYTHON/);

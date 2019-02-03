@@ -2,7 +2,11 @@
 
 use v6.c;
 use Inline::Python3;
+use Inline::Python3::PyModule;
+
 use Test;
+
+start-python;
 
 my $string = PyModule('string', :import);
 

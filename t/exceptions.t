@@ -2,8 +2,13 @@
 
 use v6.c;
 use Inline::Python3;
+use Inline::Python3::PyModule;
+use Inline::Python3::PythonException;
+
 use Test;
 
+start-python;
+	     
 my $py = PyModule('__main__');
 {
     try $py.run(q:heredoc/PYTHON/);
