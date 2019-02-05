@@ -40,7 +40,8 @@
         "Inline::Python3::TupleConverter": "lib/Inline/Python3/TupleConverter.pm6",
         "Inline::Python3::TypeConverter": "lib/Inline/Python3/TypeConverter.pm6",
         "Inline::Python3::UnicodeConverter": "lib/Inline/Python3/UnicodeConverter.pm6",
-        "Inline::Python3::Utilities": "lib/Inline/Python3/Utilities.pm6"
+        "Inline::Python3::Utilities": "lib/Inline/Python3/Utilities.pm6",
+        "Inline::Python3::Interpolation": "lib/Inline/Python3/Interpolation.pm6"	
     },
     "depends": [
         "LibraryMake"
