@@ -4,10 +4,15 @@ use Inline::Python3::Config;
 use Inline::Python3::Utilities;
 
 class PyModule is PyObject {
-    method CALL-ME(Str $name) {
-	my $module = py_import($name);
-	$converter-serv.detect-exception;
-	PyModule.new(ref => $module)
+    my %cache;
+    
+    method CALL-ME(Str:D $name) {
+	%cache{$name} // do {
+	    my $module = py_import($name);
+	    $converter-serv.detect-exception;
+	    %cache.append($name, PyModule.new(ref => $module));
+	    %cache{$name}
+	}
     }
 
     method run($code, :$single, :$eval, :$file) {
