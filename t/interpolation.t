@@ -7,14 +7,11 @@ use Test;
 start-python;
 
 subtest {
-    my $main = PyModule('__main__');
-
     ~&~ 'x = 789';
-
-    is $main.x, 789;
+    is PyModule('__main__').x, 789;
 }
 
-is ~& '[1, 2, 3]', (1, 2, 3);
+is ~> '[1, 2, 3]', (1, 2, 3);
 
 is (~> '1'), 1;
 
