@@ -1,13 +1,12 @@
 use Inline::Python3;
 use Inline::Python3::PyModule;
-use Inline::Python3::Interpolation;
 
 use Test;
 
 start-python;
 
 subtest {
-    ~&~ 'x = 789';
+    ~>> 'x = 789';
     is PyModule('__main__').x, 789;
 }
 
@@ -38,6 +37,17 @@ subtest {
 	my $x = 888;
 	is (~> '$x'), 888;
     }
+}
+
+subtest {
+    ~>> q:to/end/;
+    def func(x, y):
+        return x + y
+    end
+
+    my ($x, $y) = 1, 2;
+    is ~> 'func($x, $x)', 2;
+    is ~> 'func($x, $y)', 3;
 }
 
 done-testing;
