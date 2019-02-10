@@ -142,12 +142,11 @@ The code is based on the [example](https://github.com/keras-team/keras/blob/mast
 
 use Inline::Python3;
 use Inline::Python3::PyModule;
-use Inline::Python3::PyTuple;
 
 start-python;
 
 sub np { PyModule('numpy') }
-sub keras { PyModule('keras') } 
+sub keras { PyModule('keras') }
 
 my $batch-size = 128;
 my $num-classes = 10;
@@ -163,44 +162,34 @@ my ($train, $test) = keras.datasets.mnist.load_data.list.map: -> $/ {
     keras.utils.to_categorical($1, $num-classes)
 }
 
-class ModelBuilder {
-    has $.ref;
-
-    method FALLBACK($layer-name,  |args) {
-	    $!ref.add(keras.layers."$layer-name"(|args)); self
-    }
+my $inputs = keras.layers.Input(shape => @image-dim);
+my $outputs = do given PyModule('keras.layers') {
+    $inputs
+    ==> .Conv2D(32, (3, 3), :activation<relu>)()
+    ==> .Conv2D(64, (3, 3), :activation<relu>)()
+    ==> .MaxPooling2D(pool_size => (2,2))()
+    ==> .Dropout(0.25)()
+    ==> .Flatten()()
+    ==> .Dense(128, :activation<relu>)()
+    ==> .Dropout(0.5)()
+    ==> .Dense($num-classes, :activation<softmax>)()
 }
 
-my $model = ModelBuilder
-.new(ref => keras.models.Sequential)
-.Conv2D(
-    32, kernel_size => ??(3, 3),
-    :activation<relu>, input_shape => ??(|@image-dim)
-)
-.Conv2D(64, ??(3, 3), :activation<relu>)
-.MaxPooling2D(pool_size => ??(2,2))
-.Dropout(0.25)
-.Flatten
-.Dense(128, :activation<relu>)
-.Dropout(0.5)
-.Dense($num-classes, :activation<softmax>)
-.ref;
+given keras.models.Model(:$inputs, :$outputs) {
+    .compile(
+	loss => keras.losses<categorical_crossentropy>,
+	optimizer => keras.optimizers.Adadelta,
+	metrics => ['accuracy']
+    );
 
-$model.compile(
-    loss => keras.losses<categorical_crossentropy>,
-    optimizer => keras.optimizers.Adadelta,
-    metrics => ['accuracy']
-);
+    .fit(
+	|$train, batch_size => $batch-size,
+	epochs => $epochs, verbose => 1,
+	validation_data => $test
+    );
 
-$model.fit(
-    |$train,
-    batch_size => $batch-size,
-    epochs => $epochs,
-    verbose => 1,
-    validation_data => ??(|$test)		    
-);
-
-$model.evaluate(|$test, verbose => 0);
+    .evaluate(|$test, verbose => 0);
+}
 ```
 
 # Build
