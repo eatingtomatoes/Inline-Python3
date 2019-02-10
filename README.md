@@ -131,6 +131,78 @@ Note that you shouldn't use double quote, or the perl6 compiler will treat it as
 
 See more usage in t/*.t files.
 
+# A Complete Example
+
+Following is a runnable example, which use keras to train a cnn on the mnist dataset.
+
+The code is based on the [example](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py) from keras document.
+
+```
+#! /usr/bin/env perl6
+
+use Inline::Python3;
+use Inline::Python3::PyModule;
+use Inline::Python3::PyTuple;
+
+start-python;
+
+sub np { PyModule('numpy') }
+sub keras { PyModule('keras') } 
+
+my $batch-size = 128;
+my $num-classes = 10;
+my $epochs = 12;
+
+my @image-dim = do {
+    keras.backend.image_data_format eq 'channels_first' ??
+    (1, 28, 28) !! (28, 28, 1)
+}
+
+my ($train, $test) = keras.datasets.mnist.load_data.list.map: -> $/ {
+    np.true_divide($0.reshape($0.shape[0], |@image-dim).astype('float32'), 255),
+    keras.utils.to_categorical($1, $num-classes)
+}
+
+class ModelBuilder {
+    has $.ref;
+
+    method FALLBACK($layer-name,  |args) {
+	    $!ref.add(keras.layers."$layer-name"(|args)); self
+    }
+}
+
+my $model = ModelBuilder
+.new(ref => keras.models.Sequential)
+.Conv2D(
+    32, kernel_size => ??(3, 3),
+    :activation<relu>, input_shape => ??(|@image-dim)
+)
+.Conv2D(64, ??(3, 3), :activation<relu>)
+.MaxPooling2D(pool_size => ??(2,2))
+.Dropout(0.25)
+.Flatten
+.Dense(128, :activation<relu>)
+.Dropout(0.5)
+.Dense($num-classes, :activation<softmax>)
+.ref;
+
+$model.compile(
+    loss => keras.losses<categorical_crossentropy>,
+    optimizer => keras.optimizers.Adadelta,
+    metrics => ['accuracy']
+);
+
+$model.fit(
+    |$train,
+    batch_size => $batch-size,
+    epochs => $epochs,
+    verbose => 1,
+    validation_data => ??(|$test)		    
+);
+
+$model.evaluate(|$test, verbose => 0);
+```
+
 # Build
 
 You will need a Python built with the -fPIC option (position independent code). Most distributions build their Python that way. 
@@ -143,7 +215,8 @@ With a python in your path, then build:
 ```
 perl6 configure.pl6
 make test
-make install(unimplemeted)
+# Sorry, I don't know how to implement the "make install" :(
+make install
 ```
 
 Or you can use the zef:
