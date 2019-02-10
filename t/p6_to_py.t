@@ -15,21 +15,26 @@ PYTHON
 
 class Foo {}
 
-# failed
-# expected: Buf.new(228,98,99)
-#      got: $[228, 98, 99]
-#
-# at present it don't support Buf type
-#
-for ('abcö',
-     # Buf.new('äbc'.encode('latin-1')),
-     24,
-     2.4.Num,
-     [1, 2],
-     { a => 1, b => 2},
-     Any, Foo.new) -> $obj {
-    is $main.identity($obj), $obj, "Can round-trip " ~ $obj.^name;
+for ('abcö', 24, 2.4.Num, Any, Foo.new) -> $obj {
+    is-deeply $main.identity($obj), $obj, "Can round-trip " ~ $obj.^name;
 }
+
+subtest {
+    for $main.identity([1, 2]).item -> $/ {
+	is $/.elems, 2;
+	is $0, 1;
+	is $1, 2;
+    }
+}, 'round-trip array';
+
+subtest {
+    for $main.identity({a => 1, b => 2}).item -> $/ {
+	is $/.elems, 2;
+	is $<a>, 1;
+	is $<b>, 2;
+    }
+}
+
 
 $main.run(q:to/PYTHON/);
 # coding=utf-8

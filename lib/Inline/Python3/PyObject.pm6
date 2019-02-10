@@ -31,6 +31,12 @@ class PyObject {
 	$!ref andthen py_dec_ref($_)
     }
 
+    method Str {
+	$converter-serv.stringify($!ref)
+    }
+
+    method perl { self.Str }
+
     sub py_object_get_attr_string(PyRef, Str --> PyRef)
     is capi('PyObject_GetAttrString') { ... }
 

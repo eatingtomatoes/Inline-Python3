@@ -29,13 +29,7 @@ class PySequence is PyObject does Positional does Iterable {
 	)
     }
 
-    method perl {
-	(0..^self.elems).map({ self.AT-POS($^i) }).Array.perl
-    }
-
-    method Str {
-	(0..^self.elems).map({ self.AT-POS($^i) }).Array.Str
-    }
+    method list { ($_ for self) }
     
     sub py_sequence_length(PyRef --> int32) is capi { ... }
 

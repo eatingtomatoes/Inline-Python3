@@ -4,6 +4,8 @@ use Inline::Python3::Config;
 use Inline::Python3::Utilities;
 
 class PyMap is PyObject does Iterable does Associative {
+    method elems { py_mapping_size($.ref) }
+    
     method AT-KEY(Str:D $key) {
 	if self.EXISTS-KEY($key) {
 	    $converter-serv.decode(
@@ -38,23 +40,8 @@ class PyMap is PyObject does Iterable does Associative {
 	)
     }
 
-    method Hash {
-	my %hash;
-    	py_mapping_items($.ref) free-after -> $sequence {	
-    	    for $converter-serv.decode($sequence) -> $item {
-    		%hash{$item[0]} = $item[1]
-    	    }
-    	}
-    	%hash	
-    }
-
-    method perl {
-	self.Hash.perl
-    }
-
-    method Str {
-	self.Hash.Str
-    }
+    sub py_mapping_size(PyRef --> int32)
+    is capi('PyMapping_Size') { ... }
     
     sub py_mapping_get_item_string(PyRef, Str --> PyRef)
     is capi('PyMapping_GetItemString') { ... }
@@ -63,5 +50,4 @@ class PyMap is PyObject does Iterable does Associative {
     is capi('PyMapping_HasKeyString') { ... }
 
     sub py_mapping_items(PyRef --> PyRef) is capi { ... }
-    
 }

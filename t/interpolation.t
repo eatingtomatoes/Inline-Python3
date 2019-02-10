@@ -10,7 +10,7 @@ subtest {
     is PyModule('__main__').x, 789;
 }
 
-is ~> '[1, 2, 3]', (1, 2, 3);
+is-deeply (~> '[1, 2, 3]').list, (1, 2, 3);
 
 is (~> '1'), 1;
 
@@ -25,9 +25,9 @@ subtest {
 subtest {
     my $ls = (1, 2, 4);
 
-    is (~> '$ls'), (1, 2, 4);
+    is-deeply (~> '$ls').list, (1, 2, 4);
 
-    is (~> '$ls * 2'), (1, 2, 4, 1, 2, 4)
+    is-deeply (~> '$ls * 2').list, (1, 2, 4, 1, 2, 4)
 }
 
 subtest {
