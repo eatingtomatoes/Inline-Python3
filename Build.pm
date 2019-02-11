@@ -27,7 +27,7 @@ class Build {
 
     sub query-pyconfig-path {
 	my $pyconfig = %*ENV<PYTHON_CONFIG> // do {
-	    my $locate-pyconfig = 'locate python3-config';
+	    my $locate-pyconfig = 'which python3-config';
 	    qqx/$locate-pyconfig/.lines.first;
 	} // die 'error: failed to find the python3.*-config';
 
