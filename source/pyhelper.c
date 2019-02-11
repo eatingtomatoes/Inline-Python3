@@ -62,7 +62,7 @@ int py_object_is_instance(PyObject *inst, PyObject *cls) {
     return PyObject_IsInstance(inst, cls);
 }
 
-int py_list_check(PyObject* object) { PyList_Check(object); }
+int py_list_check(PyObject* object) { return PyList_Check(object); }
 
 
 long py_int_from_py(PyObject* obj) { return PyLong_AsLong(obj); }
