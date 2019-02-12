@@ -86,6 +86,11 @@ class PyModule is PyObject {
     is capi('PyRun_String') { ... }
 }
 
+class py is export {
+    multi method FALLBACK('main') { PyModule('__main__') }
+    multi method FALLBACK($name) { PyModule($name) }
+}
+
 sub prefix:<~\>\>> ($code) is export {
     PyModule('__main__').interpolate($code)
 }

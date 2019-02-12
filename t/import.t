@@ -12,4 +12,6 @@ my $string = PyModule('string', :import);
 
 is $string.capwords('foo bar'), 'Foo Bar';
 
+is py.string.capwords('foo bar'), 'Foo Bar';
+
 done-testing;
