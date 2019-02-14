@@ -6,17 +6,13 @@ use Inline::Python3::Utilities;
 class PyObject {
     has $.ref;
 
-    submethod BUILD(:$!ref) {
-	py_inc_ref($!ref);
-    }
+    submethod BUILD(:$!ref) { self.inc-py-ref }
     
     method AT-KEY(Str:D  $name) {
-	# new reference
-	with py_object_get_attr_string($!ref, $name) {
-	    $converter-serv.detect-exception;
+	with self.get-py-attr($name) {
 	    $_ free-after { $converter-serv.decode($^attr) }
 	} else {
-	    py_raise_missing_method($!ref, $name)
+	    die "{self.perl} doesn't have attribute: {$name}"
 	}
     }
 
@@ -27,24 +23,29 @@ class PyObject {
 	}
     }
 
-    submethod DESTROY {
-	$!ref andthen py_dec_ref($_)
-    }
+    submethod DESTROY { self.dec-py-ref }
 
-    method Str {
-	$converter-serv.stringify($!ref)
-    }
+    method Str { $converter-serv.stringify($!ref) }
 
     method perl { self.Str }
 
-    sub py_object_get_attr_string(PyRef, Str --> PyRef)
-    is capi('PyObject_GetAttrString') { ... }
+    method get-py-attr(Str:D $name) {
+	sub f(PyRef, Str --> PyRef) is capi('PyObject_GetAttrString') { ... }
+	f($!ref, $name) modified-by { $converter-serv.detect-exception }
+    }
 
-    sub py_dec_ref(PyRef) is capi  { ... }
+    method has-py-attr(Str:D $name) {
+	sub f(PyRef, Str --> int32) is capi('PyObject_HasAttrString') { ... }
+	f($!ref, $name) modified-by { $converter-serv.detect-exception }
+    }
 
-    sub py_inc_ref(PyRef) is capi { ... }
+    method inc-py-ref {
+	sub py_inc_ref(PyRef) is capi { ... }
+	py_inc_ref($!ref) 
+    } 
 
-    sub py_raise_missing_func(Str) is capi { ... }
-
-    sub py_raise_missing_method(PyRef, Str) is capi { ... }
+    method dec-py-ref {
+	sub py_dec_ref(PyRef) is capi  { ... }
+	py_dec_ref($!ref) 
+    }
 }
