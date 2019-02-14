@@ -10,5 +10,15 @@ class PyNumpyArray is PySequence {
 	}
 	self.__getitem__(PyTuple.new(@args));
     }
+
+    method AT-POS($indices) {
+	my @args = ($indices.list Z self.shape.list).map: -> ($_, $length) {
+	    $_ ~~ Callable ?? $_($length) !! $_
+	}
+	self.__getitem__(PyTuple.new(@args));	
+    }
 }
 
+multi postcircumfix:<[ ]> (PyNumpyArray:D $array, $indices) is export {
+    $array.AT-POS($indices)
+}

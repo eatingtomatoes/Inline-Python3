@@ -45,6 +45,7 @@ subtest {
 
 subtest {
     with try PyModule('numpy') {
+	use Inline::Python3::PyNumpyArray;
 	$main.run('import numpy as np');
 
 	with .array((1,2,3)) {
@@ -55,10 +56,6 @@ subtest {
 		is $0, 1;
 		is $1, 2;
 		is $2, 3;
-
-		is .at(0), 1;
-		is .at(1), 2;
-		is .at(2), 3;			       
 	    }
 	}
  
@@ -66,6 +63,10 @@ subtest {
 	    is .at(2, 3), 11;
 	    is .at(0..*-1, 1).list, (1, 5, 9);
 	    is .at(1, 0..*-1).list, (4, 5, 6, 7);
+	    
+	    is $_[(2,3)], 11;
+	    is $_[(0..*-1, 1)].list, (1, 5, 9);
+	    is $_[(1, 0..*-1)].list, (4, 5, 6, 7);	    
 	}
     }
 
