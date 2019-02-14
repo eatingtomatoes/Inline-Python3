@@ -39,6 +39,7 @@
         "Inline::Python3::PythonException": "lib/Inline/Python3/PythonException.pm6",
         "Inline::Python3::PyTuple": "lib/Inline/Python3/PyTuple.pm6",
         "Inline::Python3::PyType": "lib/Inline/Python3/PyType.pm6",
+        "Inline::Python3::PyOperators": "lib/Inline/Python3/PyOperators.pm6",	
         "Inline::Python3::SequenceConverter": "lib/Inline/Python3/SequenceConverter.pm6",
         "Inline::Python3::TupleConverter": "lib/Inline/Python3/TupleConverter.pm6",
         "Inline::Python3::TypeConverter": "lib/Inline/Python3/TypeConverter.pm6",
