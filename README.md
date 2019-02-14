@@ -129,6 +129,17 @@ say (~> '$ls');
 
 Note that you shouldn't use double quote, or the perl6 compiler will treat it as string interpolation.
 
+You may also use python's operators:
+
+```
+use Inline::Python3::PyOperators;
+my $pyobject = ... ;
+my $pylist = ... ;
+say $pyobject ?in $pylist;
+```
+
+Basically, unary python operators start with `??` while binary ones start with `?`. There are a few of exceptions. See the comments in PyOperator.pm6.
+
 See more usage in t/*.t files.
 
 # A Complete Example
