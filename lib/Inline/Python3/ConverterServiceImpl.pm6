@@ -79,6 +79,8 @@ class ConverterServiceImpl is ConverterService {
 	}	
     }
 
+    method dump-converters { @!converters.perl }
+
     sub py_unicode_to_utf8(PyRef --> PyRef) is capi { ... }
 
     sub py_bytes_as_string(PyRef --> Str) is capi { ... }

@@ -22,6 +22,8 @@ use Inline::Python3::TypeConverter;
 use Inline::Python3::Perl6Converter;
 use Inline::Python3::ProxyConverter;
 use Inline::Python3::ListConverter;
+use Inline::Python3::RangeConverter;
+use Inline::Python3::NumpyArrayConverter;
 
 use Inline::Python3::Config;
 
@@ -49,7 +51,9 @@ sub start-python is export {
 	TypeConverter,
 	Perl6Converter,
 	ProxyConverter,
-	ListConverter
+	ListConverter,
+	RangeConverter,
+	NumpyArrayConverter
     ) -> $type { $type.init }
 }
 

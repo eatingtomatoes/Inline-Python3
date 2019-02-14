@@ -33,8 +33,43 @@ subtest {
 	is $<a>, 1;
 	is $<b>, 2;
     }
-}
+}, 'round-trip map';
 
+sub eval($code) { $main.run($code, :eval) }
+
+subtest {
+    ok eval('lambda r: r == slice(1, 6, None)')(1..5);
+    ok eval('lambda r: r == slice(1, 5, None)')(1..^5);
+    ok eval('lambda r: r == slice(2, 5, None)')(1^..^5);
+}, 'range';
+
+subtest {
+    with try PyModule('numpy') {
+	$main.run('import numpy as np');
+
+	with .array((1,2,3)) {
+	    is $_[0], 1;
+
+	    given $_[0..*-1] -> $/ {
+		is $/.elems, 3;
+		is $0, 1;
+		is $1, 2;
+		is $2, 3;
+
+		is .at(0), 1;
+		is .at(1), 2;
+		is .at(2), 3;			       
+	    }
+	}
+ 
+	with .arange(12).reshape((3,4)) {
+	    is .at(2, 3), 11;
+	    is .at(0..*-1, 1).list, (1, 5, 9);
+	    is .at(1, 0..*-1).list, (4, 5, 6, 7);
+	}
+    }
+
+}, 'indexing numpy array';
 
 $main.run(q:to/PYTHON/);
 # coding=utf-8
