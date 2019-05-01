@@ -31,21 +31,21 @@ class PyModule is PyObject {
 	}
     }
 
-    method interpolate($code, *%mode) {
-	my ($body, $perl6-vars, $python-vars) = transform-sigl($code);
-	$perl6-vars.cache;
-	my $values = $perl6-vars.map({ $converter-serv.encode(OUTERS::CALLERS::CALLERS::($^id)) });
-	my $keys = $python-vars.map({ $converter-serv.encode($^id) });
+    # method interpolate($code, *%mode) {
+	# 	my ($body, $perl6-vars, $python-vars) = transform-sigl($code);
+	# 	$perl6-vars.cache;
+	# 	my $values = $perl6-vars.map({ $converter-serv.encode(OUTERS::CALLERS::CALLERS::($^id)) });
+	# 	my $keys = $python-vars.map({ $converter-serv.encode($^id) });
 
-	my $globals = py_module_getdict($.ref);	
-	for (@$keys Z @$values) -> ($key, $value) {
-	    py_dict_set_item($globals, $key, $value);
-	}
+	# 	my $globals = py_module_getdict($.ref);	
+	# 	for (@$keys Z @$values) -> ($key, $value) {
+	# 		py_dict_set_item($globals, $key, $value);
+	# 	}
 
-	self.run($body, |%mode) modified-by {
-	    for @$keys { py_dict_del_item($globals, $^key) }
-	}
-    }
+	# 	self.run($body, |%mode) modified-by {
+	# 		for @$keys { py_dict_del_item($globals, $^key) }
+	# 	}
+    # }
 
     sub create-new-id($id) {
 	'inline_perl6_id_' ~ $id;
@@ -91,10 +91,10 @@ class py is export {
     multi method FALLBACK($name) { PyModule($name) }
 }
 
-sub prefix:<~\>\>> ($code) is export {
-    PyModule('__main__').interpolate($code)
-}
+# sub prefix:<~\>\>> ($code) is export {
+#     PyModule('__main__').interpolate($code)
+# }
 
-sub prefix:<~\>> ($code) is export {
-    PyModule('__main__').interpolate($code, :eval)
-}
+# sub prefix:<~\>> ($code) is export {
+#     PyModule('__main__').interpolate($code, :eval)
+# }

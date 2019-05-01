@@ -102,33 +102,6 @@ Then you can use the string module happily:
 say $string.capwords('foo bar')
 ```
 
-Since you will use \__main__ quite frequently, here two prefix operators are provided for convenience.
-
-    ~>> q:to/end/;
-    def func(x, y):
-        return x + y
-    end
-    
-    ~> '[1, 2, 3]'
-'~>>' calls PyModule('\__main__').run, while '~>' add the 'eval' keyword. 
-
-You may also embed perl6 variables into python code, when you use these operators:
-
-```
-~>> q:to/end/;
-def func(x, y):
-    return x + y
-end
-
-my ($x, $y) = 1, 2;
-say ~> 'func($x, $y)';
-    
-my $ls = (1, 2, 4);
-say (~> '$ls');
-```
-
-Note that you shouldn't use double quote, or the perl6 compiler will treat it as string interpolation.
-
 You may also use python's operators:
 
 ```
